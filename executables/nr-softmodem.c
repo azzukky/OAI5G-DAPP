@@ -37,7 +37,7 @@ unsigned short config_frames[4] = {2,9,11,13};
 #endif
 
 #ifdef E3_AGENT
-#include "openair1/E3AP/e3_agent.h"
+#include "openair2/E3AP/e3_agent.h"
 #endif
 
 #include "nr-softmodem.h"

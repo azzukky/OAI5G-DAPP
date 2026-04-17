@@ -47,6 +47,9 @@
 #include <openair2/E3AP/service_models/spectrum_sm/spectrum_sm.h>
 #endif // E3_AGENT
 
+#include "../../../../Analysis/my_logger.h"
+char *gnb_scheduler_dlsch_filename = "../../../../Analysis/gNBLogs/gnb_scheduler_dlsch.log";
+
 ////////////////////////////////////////////////////////
 /////* DLSCH MAC PDU generation (6.1.2 TS 38.321) */////
 ////////////////////////////////////////////////////////
@@ -366,6 +369,7 @@ static void nr_store_dlsch_buffer(module_id_t module_id, frame_t frame, slot_t s
       if (lcid == DL_SCH_LCID_DTCH && nr_timer_is_active(&sched_ctrl->transm_interrupt))
         continue;
       start_meas(&RC.nrmac[module_id]->rlc_status_ind);
+      // This is where the RLC BSR is retrieved for the LCID
       sched_ctrl->rlc_status[lcid] = mac_rlc_status_ind(module_id,
                                                         rnti,
                                                         module_id,
@@ -395,6 +399,16 @@ static void nr_store_dlsch_buffer(module_id_t module_id, frame_t frame, slot_t s
             sched_ctrl->num_total_bytes,
             sched_ctrl->dl_pdus_total,
             sched_ctrl->ta_apply ? "send":"do not send");
+      if (lcid == 4){
+        log_message(gnb_scheduler_dlsch_filename, "[gNB %d][%4d.%2d] UE %d: LCID %d: %d bytes , total DL buffer size (For all LCIDs): %d bytes \n",
+                    module_id,
+                    frame,
+                    slot,
+                    UE->rnti,
+                    lcid,
+                    sched_ctrl->rlc_status[lcid].bytes_in_buffer,
+                    sched_ctrl->num_total_bytes);
+      }
     }
   }
 }

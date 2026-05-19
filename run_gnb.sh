@@ -13,7 +13,8 @@ OAI_CONFIG_DIR="../../../targets/PROJECTS/GENERIC-NR-5GC/CONF/"
 
 
 # b210 not tested in a while, may not work
-OAI_CONFIG_FILE="gnb_tdd_band78_51prb.conf"
+# OAI_CONFIG_FILE="gnb_tdd_band78_51prb.conf"
+OAI_CONFIG_FILE="gnb_tdd_band78_51prb_2x2.conf"
 
 
 rm -rf /tmp/dapps
@@ -42,13 +43,17 @@ rm statsPRB.log
 # sudo sudo taskset -c 0-11 chrt -f 90 ./nr-softmodem -O ${OAI_CONFIG_DIR}${OAI_CONFIG_FILE} --gNBs.[0].min_rxtxtime 6 --sa --usrp-tx-thread-config 1 -E --gNBs.[0].do_SRS 0
 
 # Without T-tracer COTS UE
-sudo taskset -c 0-11 chrt -f 90 ./nr-softmodem -O ${OAI_CONFIG_DIR}${OAI_CONFIG_FILE} --sa --usrp-tx-thread-config 1 -E --continuous-tx --gNBs.[0].do_SRS 0
+# sudo taskset -c 0-11 chrt -f 90 ./nr-softmodem -O ${OAI_CONFIG_DIR}${OAI_CONFIG_FILE} --sa --usrp-tx-thread-config 1 -E --continuous-tx --gNBs.[0].do_SRS 0
+# With T-tracer COTS UE
+sudo taskset -c 0-11 chrt -f 90 ./nr-softmodem -O ${OAI_CONFIG_DIR}${OAI_CONFIG_FILE} --sa --usrp-tx-thread-config 1 -E  --T_stdout  2 --gNBs.[0].do_SRS 0
 
 # rfsim
 # With T-tracer
-# sudo ./nr-softmodem -O ${OAI_CONFIG_DIR}${OAI_CONFIG_FILE} --gNBs.[0].min_rxtxtime 6 --sa -E  --T_stdout  2 --gNBs.[0].do_SRS 0 --rfsim --rfsimulator.serveraddr server
+# sudo taskset -c 0-11 chrt -f 90 ./nr-softmodem -O ${OAI_CONFIG_DIR}${OAI_CONFIG_FILE} --gNBs.[0].min_rxtxtime 6 --sa -E  --T_stdout  2 --gNBs.[0].do_SRS 0 --rfsim --rfsimulator.serveraddr server
 # Without T-tracer
 # sudo ./nr-softmodem -O ${OAI_CONFIG_DIR}${OAI_CONFIG_FILE} --gNBs.[0].min_rxtxtime 6 --sa -E --continuous-tx --gNBs.[0].do_SRS 0 --rfsim --rfsimulator.serveraddr server
+# sudo taskset -c 0-11 chrt -f 90 ./nr-softmodem -O ${OAI_CONFIG_DIR}${OAI_CONFIG_FILE} --gNBs.[0].min_rxtxtime 6 --rfsim --rfsimulator.serveraddr server
+# sudo ./nr-uesoftmodem -r 51 --numerology 1 --band 78 -C 3619200000 --ssb 186 --uicc0.imsi 999990000000001 --rfsim
 
 
 cd -

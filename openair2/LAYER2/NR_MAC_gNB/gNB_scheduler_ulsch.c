@@ -37,6 +37,9 @@
 #include "LAYER2/nr_rlc/nr_rlc_oai_api.h"
 #include "LAYER2/RLC/rlc.h"
 
+#include "../../../../Analysis/my_logger.h"
+char *gnb_scheduler_ulsch_filename = "../../../../Analysis/gNBLogs/gnb_scheduler_ulsch.log";
+
 //#define SRS_IND_DEBUG
 
 int get_ul_tda(gNB_MAC_INST *nrmac, int frame, int slot)
@@ -2384,6 +2387,7 @@ nr_pp_impl_ul nr_init_ulsch_preprocessor(int CC_id)
 
 void nr_schedule_ulsch(module_id_t module_id, frame_t frame, slot_t slot, nfapi_nr_ul_dci_request_t *ul_dci_req)
 {
+  // log_message(gnb_scheduler_ulsch_filename, " Scheduling for ULSCH at Frame %4d.%2d\n", frame, slot);
   gNB_MAC_INST *nr_mac = RC.nrmac[module_id];
   /* already mutex protected: held in gNB_dlsch_ulsch_scheduler() */
   NR_SCHED_ENSURE_LOCKED(&nr_mac->sched_lock);
@@ -2491,9 +2495,29 @@ void nr_schedule_ulsch(module_id_t module_id, frame_t frame, slot_t slot, nfapi_
     sched_ctrl->last_ul_frame = sched_pusch->frame;
     sched_ctrl->last_ul_slot = sched_pusch->slot;
 
+    // Log key uplink scheduling metrics for this UE
+    log_message(gnb_scheduler_ulsch_filename,
+      "ULSCH SCHED: [%4d.%2d] UE RNTI: %04x HARQ PID: %d Round: %d Feedback Slot: %d pusch_snrx10: %d tb_size: %u Qm: %u R: %u mcs: %u rbStart: %u rbSize: %u nrOfLayers: %u %s\n",
+      frame,
+      slot,
+      rnti,
+      harq_id,
+      cur_harq->round,
+      cur_harq->feedback_slot,
+      sched_ctrl->pusch_snrx10,
+      sched_pusch->tb_size,
+      sched_pusch->Qm,
+      sched_pusch->R,
+      sched_pusch->mcs,
+      sched_pusch->rbStart,
+      sched_pusch->rbSize,
+      sched_pusch->nrOfLayers,
+      (cur_harq->round == 0) ? "Initial Transmission" : "Retransmission"
+    );
+
     LOG_D(NR_MAC,
-          "ULSCH/PUSCH: %4d.%2d RNTI %04x UL sched %4d.%2d DCI L %d start %2d RBS %3d startSymbol %2d nb_symbol %2d dmrs_pos %x MCS Table %2d MCS %2d nrOfLayers %2d num_dmrs_cdm_grps_no_data %2d TBS %4d HARQ PID %2d round %d RV %d NDI %d est %6d sched %6d est BSR %6d TPC %d\n",
-          frame,
+        "ULSCH/PUSCH: %4d.%2d RNTI %04x UL sched %4d.%2d DCI L %d start %2d RBS %3d startSymbol %2d nb_symbol %2d dmrs_pos %x MCS Table %2d MCS %2d nrOfLayers %2d num_dmrs_cdm_grps_no_data %2d TBS %4d HARQ PID %2d round %d RV %d NDI %d est %6d sched %6d est BSR %6d TPC %d\n",
+        frame,
           slot,
           rnti,
           sched_pusch->frame,
